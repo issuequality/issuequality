@@ -36,36 +36,36 @@ def gfm(text):
     return text
 
 
-# Test suite.
+# test suite.
 try:
     from nose.tools import assert_equal
-except ImportError:
+except importerror:
     def assert_equal(a, b):
         assert a == b, '%r != %r' % (a, b)
 
 def test_single_underscores():
-    """Don't touch single underscores inside words."""
+    """don't touch single underscores inside words."""
     assert_equal(
         gfm('foo_bar'),
         'foo_bar',
     )
 
 def test_underscores_code_blocks():
-    """Don't touch underscores in code blocks."""
+    """don't touch underscores in code blocks."""
     assert_equal(
         gfm('    foo_bar_baz'),
         '    foo_bar_baz',
     )
 
 def test_underscores_pre_blocks():
-    """Don't touch underscores in pre blocks."""
+    """don't touch underscores in pre blocks."""
     assert_equal(
         gfm('<pre>\nfoo_bar_baz\n</pre>'),
         '\n\n<pre>\nfoo_bar_baz\n</pre>',
     )
 
 def test_pre_block_pre_text():
-    """Don't treat pre blocks with pre-text differently."""
+    """don't treat pre blocks with pre-text differently."""
     a = '\n\n<pre>\nthis is `a\\_test` and this\\_too\n</pre>'
     b = 'hmm<pre>\nthis is `a\\_test` and this\\_too\n</pre>'
     assert_equal(
@@ -74,35 +74,35 @@ def test_pre_block_pre_text():
     )
 
 def test_two_underscores():
-    """Escape two or more underscores inside words."""
+    """escape two or more underscores inside words."""
     assert_equal(
         gfm('foo_bar_baz'),
         'foo\\_bar\\_baz',
     )
 
 def test_newlines_simple():
-    """Turn newlines into br tags in simple cases."""
+    """turn newlines into br tags in simple cases."""
     assert_equal(
         gfm('foo\nbar'),
         'foo  \nbar',
     )
 
 def test_newlines_group():
-    """Convert newlines in all groups."""
+    """convert newlines in all groups."""
     assert_equal(
         gfm('apple\npear\norange\n\nruby\npython\nerlang'),
         'apple  \npear  \norange\n\nruby  \npython  \nerlang',
     )
 
 def test_newlines_long_group():
-    """Convert newlines in even long groups."""
+    """convert newlines in even long groups."""
     assert_equal(
         gfm('apple\npear\norange\nbanana\n\nruby\npython\nerlang'),
         'apple  \npear  \norange  \nbanana\n\nruby  \npython  \nerlang',
     )
 
 def test_newlines_list():
-    """Don't convert newlines in lists."""
+    """don't convert newlines in lists."""
     assert_equal(
         gfm('# foo\n# bar'),
         '# foo\n# bar',
@@ -111,7 +111,3 @@ def test_newlines_list():
         gfm('* foo\n* bar'),
         '* foo\n* bar',
     )
-if __name__ == "__main__":
-    text = u"First, [RFC 6265](https://tools.ietf.org/html/rfc6265) said:\r\n> Origin servers SHOULD NOT fold multiple Set-Cookie header fields into a single header field.\r\n\r\n\r\nBut in flask-admin login(with flask-user) login response, multiple set-cookie(s) are folded:\r\n> Set-Cookie: remember_token=...; Expires=Tue, 06-Feb-2018 05:23:25 GMT; Path=/\r\nsession=...; HttpOnly; Path=/\r\n\r\n**CAUTION: Path=/[without a space]session=**\r\n\r\nAnd in werkzeug, multiple Set-Cookie unittest(I added this code in werkzeug/tests/test_wrappers.py below), and passed.\r\n\r\n    # set multi cookie once\r\n    response = wrappers.BaseResponse()\r\n    response.set_cookie('foo', 'bar', 60, 0, '/blub', 'example.org')\r\n    response.set_cookie('blar', 'zag', 60, 0, '/blob', 'example.org')\r\n    strict_eq(response.headers.to_wsgi_list(), [\r\n        ('Content-Type', 'text/plain; charset=utf-8'),\r\n        ('Set-Cookie', 'foo=bar; Domain=example.org; Expires=Thu, '\r\n         '01-Jan-1970 00:00:00 GMT; Max-Age=60; Path=/blub'),\r\n        ('Set-Cookie', 'blar=zag; Domain=example.org; Expires=Thu, '\r\n         '01-Jan-1970 00:00:00 GMT; Max-Age=60; Path=/blob')\r\n    ])\r\n\r\nSo I think this maybe a bug or flask. \r\nAny thought appreciated.\r\n"
-    result = gfm(text)
-    print(result)
