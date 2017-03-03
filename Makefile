@@ -42,7 +42,7 @@ test: clean
 	@py.test --verbose --color=yes --pdb $(TEST_PATH)
 
 run:
-	@python email_sender.py docs/email_template.html
+	@python run.py
 
 deploy: clean
 	@rsync -e "ssh -p $(SSH_PORT)" -P -trvz --exclude=$(EXCLUDE_FILES) \
