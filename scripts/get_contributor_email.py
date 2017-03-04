@@ -4,14 +4,17 @@
 
 from github import Github
 from time import sleep
-
+import configparser
 
 try:
     repo_list = ['redmine/redmine',
                  'bugzilla/bugzilla',
                  'mantisbt/mantisbt'
                  ]
-    git_api = Github(login_or_token='924553472c249ac97e94a13d125b64164528e149')
+    config = configparser.ConfigParser()
+    config.readfp(open('../conf/rmquality.ini'))
+    api_token = config.get('API_TOKEN', 'token')
+    git_api = Github(login_or_token=api_token)
     contrib_counter = 0
     email_counter = 0
     seconds_to_wait = 3
