@@ -13,8 +13,6 @@ EXCLUDE_FILES={'.*','*.log','*conf.py'}
 help:
 	@echo "    clean"
 	@echo "        Remove python artifacts."
-	@echo "    clean-build"
-	@echo "        Remove build artifacts."
 	@echo "    isort"
 	@echo "        Sort import statements."
 	@echo "    lint"
@@ -23,8 +21,6 @@ help:
 	@echo "        Run py.test"
 	@echo '    run'
 	@echo '        Run the `my_project` service on your local machine.'
-	@echo '    docker-run'
-	@echo '        Build and run the `my_project` service in a Docker container.'
 
 clean:
 	@find . -name '*.pyc' -exec rm --force {} +

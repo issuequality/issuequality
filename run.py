@@ -8,5 +8,5 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 
 if __name__ == "__main__":
-    issue_quality = IssueQuality(full_name='vagnerclementino/flask')
+    issue_quality = IssueQuality()
     issue_quality.run()
