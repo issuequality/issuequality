@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 # import ipdb as pdb
 from LogManager import LogManager
 from IssueReportAnalyser import IssueReportAnalyser
@@ -70,6 +70,15 @@ class IssueQuality(object):
                                           )
                     sleep(self._TIME_TO_WAIT)
                 self._logger.log_info("Execução efetuada com sucesso.")
+                # Criando mensagem sobre nova execução
+                td = timedelta(seconds=self._SECOND_TO_NEW_EXECUTION)
+                new_exec_date = datetime.now() + td
+                str_new_exec = new_exec_date.strftime('%d-%m-%Y %H:%M:%S')
+                self._logger.log_info(("Uma nova execução foi agendada "
+                                       "para {0}."
+                                       ).format(str_new_exec)
+                                      )
+                # Aguardando para nova execução
                 sleep(self._SECOND_TO_NEW_EXECUTION)
         except Exception as e:
             self._logger.log_error(e)
