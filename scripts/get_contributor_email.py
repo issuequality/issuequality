@@ -17,7 +17,7 @@ try:
     git_api = Github(login_or_token=api_token)
     contrib_counter = 0
     email_counter = 0
-    seconds_to_wait = 3
+    seconds_to_wait = 2
     user_message = str()
     for repo in repo_list:
         user_message = 'Analisando o repositório {0}'.format(repo)
@@ -26,7 +26,7 @@ try:
         for contrib in repo_git.get_contributors():
             contrib_counter = contrib_counter + 1
             if contrib.email is not None:
-                print(contrib.email)
+                # print(contrib.email)
                 email_counter = email_counter + 1
             user_message = ('Esperando {0} para uma nova '
                             'consulta'
@@ -34,9 +34,11 @@ try:
             print(user_message)
             sleep(seconds_to_wait)
 
-    user_message = ('Total de contribuidores: {0}.'
-                    ' Total com e-mail {1}').format(contrib_counter,
-                                                    email_counter)
-    print(user_message)
+        user_message = ('Fim da análise do projeto {0}. '
+                        'Total de contribuidores: {1}. '
+                        'Total com e-mail {2}').format(repo,
+                                                       contrib_counter,
+                                                       email_counter)
+        print(user_message)
 except Exception as e:
     print(e)
