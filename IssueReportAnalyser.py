@@ -36,27 +36,42 @@ class IssueReportAnalyser(object):
                   comentário seja necessário
         """
         dict_metrics = dict()
-        if issue.number == 12:
-            comment = str()
-            counter = 0
-            comment_aux = str()
-            comment = (self._HEAD_COMMENT).format(issue.user.login)
+        comment = str()
+        counter = 0
+        comment_aux = str()
+        comment = (self._HEAD_COMMENT).format(issue.user.login)
 
-            comment_aux = self.analyse_steps_to_reproduce(issue)
-            if comment_aux:
-                comment = comment + comment_aux
-                counter = counter + 1
-                dict_metrics['step_to_reproduce'] = 1
-            else:
-                dict_metrics['step_to_reproduce'] = 0
-            if counter:
-                comment = comment + self._FOOT_COMMENT
-                return comment
+        comment_aux = self.analyse_steps_to_reproduce(issue)
+        if comment_aux:
+            comment = comment + comment_aux
+            counter = counter + 1
+            dict_metrics['step_to_reproduce'] = 1
+        else:
+            dict_metrics['step_to_reproduce'] = 0
+
+        comment_aux = self.analyse_attached_files(issue)
+        if comment_aux:
+            comment = comment + comment_aux
+            counter = counter + 1
+            dict_metrics['attach'] = 1
+        else:
+            dict_metrics['attach'] = 0
+
+        comment_aux = self.analyse_code_block(issue)
+        if comment_aux:
+            comment = comment + comment_aux
+            counter = counter + 1
+            dict_metrics['code'] = 1
+        else:
+            dict_metrics['code'] = 0
+        # Definindo o envio do comentário
+        if counter:
+            comment = comment + self._FOOT_COMMENT
+            return comment
         else:
             return None
 
-
-    def get_match_list(self, text, gfm_item):
+    def get_match_list(self, text, gfm_key):
         """Retorna a lista de string que match com um dado item do Github
         Formatted Markdown
 
@@ -65,8 +80,8 @@ class IssueReportAnalyser(object):
         :returns: TODO
 
         """
-        if gfm_item == 'list':
-            match_list = re.findall(patterns.gfm_pat['list'],
+        if gfm_key in patterns.gfm_pat:
+            match_list = re.findall(patterns.gfm_pat[gfm_key],
                                     text,
                                     re.MULTILINE)
 
@@ -82,8 +97,39 @@ class IssueReportAnalyser(object):
         match_list = self.get_match_list(issue.body,
                                          'list')
 
-        if len(match_list) > 0:
+        if len(match_list) == 0:
             return (" - [ ] Add step to reproduce.\n")
         else:
             None
 
+    def analyse_attached_files(self, issue):
+        """TODO: Docstring for analyse_attached_files.
+
+        :issue: TODO
+        :returns: TODO
+
+        """
+
+        match_list = self.get_match_list(issue.body,
+                                         'attach')
+        if len(match_list) == 0:
+            return ((" - [ ] To Attach files with a screenshots"
+                    " or stacktraces.\n"
+                     )
+                    )
+        else:
+            None
+
+    def analyse_code_block(self, issue):
+        """TODO: Docstring for analyse_code_block.
+
+        :issue: TODO
+        :returns: TODO
+
+        """
+        match_list = self.get_match_list(issue.body,
+                                         'code')
+        if len(match_list) == 0:
+            return (" - [ ] To include a code block")
+        else:
+            None
