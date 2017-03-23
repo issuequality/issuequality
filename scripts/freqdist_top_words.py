@@ -35,6 +35,7 @@ import sys
 import codecs
 import nltk
 from nltk.corpus import stopwords
+import csv
 
 # NLTK's default German stopwords
 default_stopwords = set(nltk.corpus.stopwords.words('english'))
@@ -48,6 +49,7 @@ custom_stopwords = set(codecs.open(stopwords_file, 'r', 'utf-8').read().splitlin
 all_stopwords = default_stopwords | custom_stopwords
 
 input_file = sys.argv[1]
+output_file = sys.argv[2]
 
 fp = codecs.open(input_file, 'r', 'utf-8')
 
@@ -63,8 +65,8 @@ words = [word for word in words if not word.isnumeric()]
 words = [word.lower() for word in words]
 
 # Stemming words seems to make matters worse, disabled
-stemmer = nltk.stem.snowball.SnowballStemmer('english')
-words = [stemmer.stem(word) for word in words]
+# stemmer = nltk.stem.snowball.SnowballStemmer('english')
+# words = [stemmer.stem(word) for word in words]
 
 # Remove stopwords
 words = [word for word in words if word not in all_stopwords]
@@ -73,6 +75,12 @@ words = [word for word in words if word not in all_stopwords]
 fdist = nltk.FreqDist(words)
 
 # Output top 50 words
-
-for word, frequency in fdist.most_common(50):
-    print(u'{};{}'.format(word, frequency))
+with open(output_file, 'wb') as f:
+    writer_csv = csv.writer(f,
+                            delimiter=';',
+                            quotechar='"',
+                            quoting=csv.QUOTE_NONNUMERIC
+                            )
+    writer_csv.writerow(('word', 'frequency'))
+    for word, frequency in fdist.most_common(100):
+        writer_csv.writerow((word, frequency))
