@@ -2,10 +2,14 @@
 # -*- coding: utf-8 -*-
 
 import conf.issue_quality_re_patterns as patterns
+import conf.issue_quality_keywords as keywords
 import re
 from BeautifulSoup import BeautifulSoup
 from markdown import markdown
 from GithubMarkdown import GithubMarkdown
+import codecs
+import nltk
+from nltk.corpus import stopwords
 
 
 class IssueReportAnalyser(object):
@@ -67,6 +71,9 @@ class IssueReportAnalyser(object):
             dict_metrics['code'] = 1
         else:
             dict_metrics['code'] = 0
+
+        self.analyse_keywork_completude(issue)
+
         # Definindo o envio do comentário
         if counter:
             comment = comment + self._FOOT_COMMENT
@@ -149,6 +156,63 @@ class IssueReportAnalyser(object):
         text_str = ''.join(BeautifulSoup(html).findAll(text=True))
         return text_str
 
+    def tokenize_text(self, str_text):
+        """TODO: Docstring for tokenize_text.
+
+        :str_text: TODO
+        :returns: TODO
+
+        """
+
+        default_stopwords = set(stopwords.words('english'))
+
+        # We're adding some on our own - could be done inline like this...
+        # custom_stopwords = set((u'–', u'dass', u'mehr')) ... but let's read
+        # them from a file instead (one stopword per line, UTF-8)
+        stopwords_file = './data/stopwords.txt'
+        custom_stopwords = set(codecs.open(stopwords_file, 'r',
+                                           'utf-8').read().splitlines())
+
+        all_stopwords = default_stopwords | custom_stopwords
+        words = nltk.word_tokenize(str_text)
+
+        # Remove single-character tokens (mostly punctuation)
+        words = [word for word in words if len(word) > 1]
+
+        # Remove numbers
+        words = [word for word in words if not word.isnumeric()]
+
+        # Lowercase all words (default_stopwords are lowercase too)
+        words = [word.lower() for word in words]
+
+        # Stemming words seems to make matters worse, disabled
+        stemmer = nltk.stem.snowball.SnowballStemmer('english')
+        words = [stemmer.stem(word) for word in words]
+
+        # Remove stopwords
+        words = [word for word in words if word not in all_stopwords]
+        return words
+
+    def find_keywords(self, words):
+        """TODO: Docstring for find_keywords.
+
+        :words: TODO
+        :returns: TODO
+
+        """
+        dict_freq_keywords = dict()
+        for key in keywords.dict_keywords:
+            dict_freq_keywords [key] = 0
+
+        for word in words:
+            print('Analisando palavra: ' + word)
+            # Verificando a existencia da palavra entre as keywords
+            for key in keywords.dict_keywords:
+                if word in keywords.dict_keywords[key]:
+                    dict_freq_keywords[key] = dict_freq_keywords[key] + 1
+
+        return dict_freq_keywords
+
     def analyse_keywork_completude(self, issue):
         """TODO: Docstring for analyse_keywork_completude.
 
@@ -156,7 +220,11 @@ class IssueReportAnalyser(object):
         :returns: TODO
 
         """
-        gfm = GithubMarkdown()
+        gfm = GithubMarkdown(issue.body)
         str_markdown = gfm.parse(issue.body)
         str_text = self.markdown_to_text(str_markdown)
-        print(str_text)
+        words = self.tokenize_text(str_text)
+        print(words)
+        freq_keywords = self.find_keywords(words)
+        print(freq_keywords)
+
