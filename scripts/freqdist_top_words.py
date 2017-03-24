@@ -37,14 +37,15 @@ import nltk
 from nltk.corpus import stopwords
 import csv
 
-# NLTK's default German stopwords
-default_stopwords = set(nltk.corpus.stopwords.words('english'))
+# NLTK's default English stopwords
+default_stopwords = set(stopwords.words('english'))
 
 # We're adding some on our own - could be done inline like this...
 # custom_stopwords = set((u'–', u'dass', u'mehr'))
 # ... but let's read them from a file instead (one stopword per line, UTF-8)
 stopwords_file = './stopwords.txt'
-custom_stopwords = set(codecs.open(stopwords_file, 'r', 'utf-8').read().splitlines())
+custom_stopwords = set(codecs.open(stopwords_file, 'r',
+                                   'utf-8').read().splitlines())
 
 all_stopwords = default_stopwords | custom_stopwords
 
@@ -65,8 +66,8 @@ words = [word for word in words if not word.isnumeric()]
 words = [word.lower() for word in words]
 
 # Stemming words seems to make matters worse, disabled
-# stemmer = nltk.stem.snowball.SnowballStemmer('english')
-# words = [stemmer.stem(word) for word in words]
+stemmer = nltk.stem.snowball.SnowballStemmer('english')
+words = [stemmer.stem(word) for word in words]
 
 # Remove stopwords
 words = [word for word in words if word not in all_stopwords]
@@ -74,8 +75,8 @@ words = [word for word in words if word not in all_stopwords]
 # Calculate frequency distribution
 fdist = nltk.FreqDist(words)
 
-# Output top 50 words
-with open(output_file, 'wb') as f:
+# Output top 100 words
+with codecs.open(output_file, 'wb') as f:
     writer_csv = csv.writer(f,
                             delimiter=';',
                             quotechar='"',

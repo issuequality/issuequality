@@ -3,6 +3,9 @@
 
 import conf.issue_quality_re_patterns as patterns
 import re
+from BeautifulSoup import BeautifulSoup
+from markdown import markdown
+from GithubMarkdown import GithubMarkdown
 
 
 class IssueReportAnalyser(object):
@@ -133,3 +136,27 @@ class IssueReportAnalyser(object):
             return (" - [ ] To include a code block")
         else:
             None
+
+    def markdown_to_text(self, markdown_str):
+        """Tranforma uma string no formato markdown em uma string
+
+        :markdown_str: TODO
+        :returns: TODO
+
+        """
+        pass
+        html = markdown(markdown_str)
+        text_str = ''.join(BeautifulSoup(html).findAll(text=True))
+        return text_str
+
+    def analyse_keywork_completude(self, issue):
+        """TODO: Docstring for analyse_keywork_completude.
+
+        :issue: TODO
+        :returns: TODO
+
+        """
+        gfm = GithubMarkdown()
+        str_markdown = gfm.parse(issue.body)
+        str_text = self.markdown_to_text(str_markdown)
+        print(str_text)
