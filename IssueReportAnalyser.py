@@ -7,9 +7,11 @@ import re
 from BeautifulSoup import BeautifulSoup
 from markdown import markdown
 from GithubMarkdown import GithubMarkdown
+from IssueComment import IssueComment
 import codecs
 import nltk
 from nltk.corpus import stopwords
+# import ipdb as pdb
 
 
 class IssueReportAnalyser(object):
@@ -18,65 +20,56 @@ class IssueReportAnalyser(object):
 
     def __init__(self):
         """TODO: to be defined1. """
-        self._HEAD_COMMENT = ("Dear @{0},\n"
-                              "This issues do not looks great :-1:\n"
-                              " Would you like us to help you improve it?"
-                              " :smile:\n"
-                              "You could take the following action:\n"
-                              )
-        self._FOOT_COMMENT = ("\n\n\n"
-                              "**Did you know:**\n"
-                              "* Issues containing *stack traces* get"
-                              " fixed sooner.\n"
-                              "* Issues that are *easier to read* "
-                              " have lower lifetimes.\n"
-                              "* Including *code samples* in your issue"
-                              " increases the chances of it"
-                              " getting fixed.\n"
-                              )
 
-    def analyse(self, issue):
+    def analyse(self, project_name, issue):
         """TODO: Docstring for analyse.
 
         :issue: TODO
         :returns: Uma string no formato Markdown, ou None caso nenhum
                   comentário seja necessário
         """
-        dict_metrics = dict()
-        comment = str()
         counter = 0
+        metric_value = 0
         comment_aux = str()
-        comment = (self._HEAD_COMMENT).format(issue.user.login)
+        comment = IssueComment(project_name, issue)
 
-        comment_aux = self.analyse_steps_to_reproduce(issue)
+        # pdb.set_trace()
+        metric_value, comment_aux = self.analyse_steps_to_reproduce(issue)
         if comment_aux:
-            comment = comment + comment_aux
+            comment.set_body(comment_aux)
             counter = counter + 1
-            dict_metrics['step_to_reproduce'] = 1
+            comment.set_comment_metric('step_to_reproduce', 0)
         else:
-            dict_metrics['step_to_reproduce'] = 0
+            comment.set_comment_metric('step_to_reproduce', 1)
 
-        comment_aux = self.analyse_attached_files(issue)
+        # pdb.set_trace()
+        metric_value, comment_aux = self.analyse_attached_files(issue)
         if comment_aux:
-            comment = comment + comment_aux
+            comment.set_body(comment_aux)
             counter = counter + 1
-            dict_metrics['attach'] = 1
+            comment.set_comment_metric('attach_file', 0)
         else:
-            dict_metrics['attach'] = 0
+            comment.set_comment_metric('attach_file', 1)
 
-        comment_aux = self.analyse_code_block(issue)
+        metric_value, comment_aux = self.analyse_code_block(issue)
         if comment_aux:
-            comment = comment + comment_aux
+            comment.set_body(comment_aux)
             counter = counter + 1
-            dict_metrics['code'] = 1
+            comment.set_comment_metric('code_fragment', 0)
         else:
-            dict_metrics['code'] = 0
+            comment.set_comment_metric('code_fragment', 1)
 
-        self.analyse_keywork_completude(issue)
+        dict_key_compl, comment_aux = self.analyse_keywork_completude(issue)
+
+        if comment_aux:
+            comment.set_body(comment_aux)
+            counter = counter + 1
+            comment.set_comment_metric('keyword_completude', dict_key_compl)
+        else:
+            comment.set_comment_metric('keyword_completude', dict_key_compl)
 
         # Definindo o envio do comentário
         if counter:
-            comment = comment + self._FOOT_COMMENT
             return comment
         else:
             return None
@@ -108,9 +101,9 @@ class IssueReportAnalyser(object):
                                          'list')
 
         if len(match_list) == 0:
-            return (" - [ ] Add step to reproduce.\n")
+            return (1, (" - [ ] Add step to reproduce.\n"))
         else:
-            None
+            return (0, None)
 
     def analyse_attached_files(self, issue):
         """TODO: Docstring for analyse_attached_files.
@@ -123,12 +116,12 @@ class IssueReportAnalyser(object):
         match_list = self.get_match_list(issue.body,
                                          'attach')
         if len(match_list) == 0:
-            return ((" - [ ] To Attach files with a screenshots"
+            return (1, (" - [ ] To Attach files with a screenshots"
                     " or stacktraces.\n"
-                     )
+                        )
                     )
         else:
-            None
+            return (0, None)
 
     def analyse_code_block(self, issue):
         """TODO: Docstring for analyse_code_block.
@@ -140,9 +133,9 @@ class IssueReportAnalyser(object):
         match_list = self.get_match_list(issue.body,
                                          'code')
         if len(match_list) == 0:
-            return (" - [ ] To include a code block")
+            return (1, (" - [ ] To include a code block.\n"))
         else:
-            None
+            return (0, None)
 
     def markdown_to_text(self, markdown_str):
         """Tranforma uma string no formato markdown em uma string
@@ -151,7 +144,6 @@ class IssueReportAnalyser(object):
         :returns: TODO
 
         """
-        pass
         html = markdown(markdown_str)
         text_str = ''.join(BeautifulSoup(html).findAll(text=True))
         return text_str
@@ -202,10 +194,9 @@ class IssueReportAnalyser(object):
         """
         dict_freq_keywords = dict()
         for key in keywords.dict_keywords:
-            dict_freq_keywords [key] = 0
+            dict_freq_keywords[key] = 0
 
         for word in words:
-            print('Analisando palavra: ' + word)
             # Verificando a existencia da palavra entre as keywords
             for key in keywords.dict_keywords:
                 if word in keywords.dict_keywords[key]:
@@ -224,7 +215,13 @@ class IssueReportAnalyser(object):
         str_markdown = gfm.parse(issue.body)
         str_text = self.markdown_to_text(str_markdown)
         words = self.tokenize_text(str_text)
-        print(words)
-        freq_keywords = self.find_keywords(words)
-        print(freq_keywords)
-
+        dict_freq_keywords = self.find_keywords(words)
+        counter = 0
+        for key in dict_freq_keywords:
+            if dict_freq_keywords[key]:
+                counter = counter + 1
+        if counter <= 2:
+            message = (" - [ ] To improve the text in issue body.\n")
+        else:
+            message = None
+        return (dict_freq_keywords, message)
