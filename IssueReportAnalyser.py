@@ -42,7 +42,6 @@ class IssueReportAnalyser(object):
         else:
             comment.set_comment_metric('step_to_reproduce', 1)
 
-        # pdb.set_trace()
         metric_value, comment_aux = self.analyse_attached_files(issue)
         if comment_aux:
             comment.set_body(comment_aux)
