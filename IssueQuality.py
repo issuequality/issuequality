@@ -93,7 +93,8 @@ class IssueQuality(object):
             gh_pool = GithubRepoPool()
             # pdb.set_trace()
             header = True
-            csv_file_name = (datetime.now().strftime('%Y%m%d_%H%M%S_') +
+            csv_file_name = ('outputs/' +
+                             datetime.now().strftime('%Y%m%d_%H%M%S_') +
                              'comments.csv'
                              )
             for full_name in self.get_all_repo_fullname():
