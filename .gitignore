@@ -96,4 +96,5 @@ ENV/
 conf/rmquality.ini
 #Arquivo de log
 log/*
-
+#Outups de execução
+outputs/*
