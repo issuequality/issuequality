@@ -54,12 +54,17 @@ class IssueQuality(object):
 
             for key in dict_metrics:
 
-                if key == 'keyword_completude':
+                if key == 'keyword_completude' or key == 'readability':
                     dict_key_compl = dict_metrics[key]
                     for key2 in dict_key_compl:
                         row_tuple += (dict_key_compl[key2],)
                         if header:
-                            header_tuple += (key2,)
+                            if key == 'keyword_completude':
+                                header_tuple += (('keyword completude - ' +
+                                                  key2),
+                                                 )
+                            elif key == 'readability':
+                                header_tuple += ('readability - ' + key2,)
                 else:
                     row_tuple += (dict_metrics[key],)
                     if header:

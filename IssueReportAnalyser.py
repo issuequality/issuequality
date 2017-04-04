@@ -11,6 +11,7 @@ from IssueComment import IssueComment
 import codecs
 import nltk
 from nltk.corpus import stopwords
+from textstat.textstat import textstat
 # import ipdb as pdb
 
 
@@ -20,6 +21,9 @@ class IssueReportAnalyser(object):
 
     def __init__(self):
         """TODO: to be defined1. """
+        self._SCORE_FLESCH = 50
+        self._SCORE_ARI = 13
+        self._SCORE_DALE_CHALL = 13
 
     def analyse(self, project_name, issue):
         """TODO: Docstring for analyse.
@@ -59,13 +63,20 @@ class IssueReportAnalyser(object):
             comment.set_comment_metric('code_fragment', 1)
 
         dict_key_compl, comment_aux = self.analyse_keywork_completude(issue)
-
         if comment_aux:
             comment.set_body(comment_aux)
             counter = counter + 1
             comment.set_comment_metric('keyword_completude', dict_key_compl)
         else:
             comment.set_comment_metric('keyword_completude', dict_key_compl)
+
+        dic_read_tests, comment_aux = self.analyse_readbility(issue)
+        if comment_aux:
+            comment.set_body(comment_aux)
+            counter = counter + 1
+            comment.set_comment_metric('readability', dic_read_tests)
+        else:
+            comment.set_comment_metric('readability', dic_read_tests)
 
         # Definindo o envio do comentário
         if counter:
@@ -224,3 +235,63 @@ class IssueReportAnalyser(object):
         else:
             message = None
         return (dict_freq_keywords, message)
+
+    def _has_low_readbility(self, dic_tests_metrics):
+        """TODO: Docstring for _has_low_readbility.
+
+        :dic_tests_metrics: TODO
+        :returns: TODO
+
+        """
+
+        if(
+            (dic_tests_metrics['flesch'] <= self._SCORE_FLESCH) and
+            (dic_tests_metrics['ari'] >= self._SCORE_ARI)
+           ):
+            return True
+
+        if (
+            (dic_tests_metrics['flesch'] <= self._SCORE_FLESCH) and
+            (dic_tests_metrics['dale-chall'] >= self._SCORE_DALE_CHALL)
+           ):
+            return True
+
+        if (
+            (dic_tests_metrics['dale-chall'] >= self._SCORE_DALE_CHALL) and
+            (dic_tests_metrics['ari'] >= self._SCORE_ARI)
+           ):
+            return True
+
+        # Todos os teste falharam, retorna Falso
+        return False
+
+    def analyse_readbility(self, issue):
+        """TODO: Docstring for analyse_readbility.
+
+        :issue: TODO
+        :returns: TODO
+
+        """
+        gfm = GithubMarkdown(issue.body)
+        str_markdown = gfm.parse(issue.body)
+        str_text = self.markdown_to_text(str_markdown)
+        dic_test_readbility = dict()
+
+        # Analisando a métrica Flesch Reading Ease Score
+        score_flesch = textstat.flesch_reading_ease(str_text)
+        dic_test_readbility['flesch'] = score_flesch
+
+        # Analisando com o teste Automated Readability Index (ARI)
+        score_ari = textstat.automated_readability_index(str_text)
+        dic_test_readbility['ari'] = score_ari
+
+        # Analisando com o teste Dale-Chall Readbility Score
+        score_dale_chal = textstat.dale_chall_readability_score(str_text)
+        dic_test_readbility['dale-chall'] = score_dale_chal
+
+        if self._has_low_readbility(dic_test_readbility):
+            message = ' - [ ] To improve the readability of the text.\n'
+        else:
+            message = None
+
+        return (dic_test_readbility, message)
