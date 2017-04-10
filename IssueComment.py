@@ -10,7 +10,7 @@ class IssueComment(object):
     def __init__(self, project_name, issue):
         """TODO: to be defined1. """
         self._HEAD_COMMENT = ("Dear @{0},\n"
-                              "This issues do not looks great :-1:\n"
+                              "These issue do not looks great :-1:\n"
                               " Would you like us to help you improve it?"
                               " :smile:\n"
                               "You could take the following action:\n"
