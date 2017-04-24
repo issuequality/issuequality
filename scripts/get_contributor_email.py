@@ -9,7 +9,10 @@ import configparser
 try:
     repo_list = ['redmine/redmine',
                  'bugzilla/bugzilla',
-                 'mantisbt/mantisbt'
+                 'mantisbt/mantisbt',
+                 'spring-projects/spring-framework',
+                 'elastic/elasticsearch',
+                 'google/guava'
                  ]
     config = configparser.ConfigParser()
     config.readfp(open('../conf/rmquality.ini'))
@@ -28,10 +31,10 @@ try:
             if contrib.email is not None:
                 # print(contrib.email)
                 email_counter = email_counter + 1
-            user_message = ('Esperando {0} para uma nova '
-                            'consulta'
-                            ).format(seconds_to_wait)
-            print(user_message)
+            # user_message = ('Esperando {0} para uma nova '
+            #               'consulta'
+            #               ).format(seconds_to_wait)
+            # print(user_message)
             sleep(seconds_to_wait)
 
         user_message = ('Fim da análise do projeto {0}. '
