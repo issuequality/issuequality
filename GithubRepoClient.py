@@ -60,7 +60,7 @@ class GithubRepoClient(object):
         try:
 
             if self._config is not None:
-                return self._config.get('API_TOKEN', 'token')
+                return self._config.get('API_TOKEN', 'token_issuequality')
         except Exception as e:
             raise e
 

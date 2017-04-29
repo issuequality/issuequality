@@ -37,7 +37,7 @@ def main():
             max_item_to_copy = 100
             config = configparser.ConfigParser()
             config.readfp(open('conf/rmquality.ini'))
-            api_token = config.get('API_TOKEN', 'token')
+            api_token = config.get('API_TOKEN', 'token_vagner_clementino')
             git_api = Github(login_or_token=api_token)
             repo_orig = git_api.get_repo(repo_orig_fullname)
             repo_dest = git_api.get_repo(repo_dest_fullname)
@@ -60,8 +60,8 @@ def main():
                 else:
                     break
             log.log_info(("Fim da cópia das issues do projeto {0}"
-                          .format(repo_dest_fullname))
-                         )
+                          .format(repo_orig_fullname)
+                          ))
     except configparser.Error as e:
         log.log_error(e)
     except GithubException as ghe:
