@@ -13,14 +13,25 @@ def main():
 
     try:
 
+        reload(sys)
+        sys.setdefaultencoding('utf-8')
         log = LogManager(log_path="./log/",
                          file_name="copy_issues"
                          )
-        lst_repos = ['elastic/elasticsearch']
+        lst_repos = ['google/guava',
+                     'elastic/elasticsearch',
+                     'spring-projects/spring-framework'
+                     ]
 
         for repo_orig_fullname in lst_repos:
+
+            log.log_info(("Início da cópia das issues do projeto {0}"
+                          .format(repo_orig_fullname))
+                         )
+            # Obtendo posicação do caracter '/'
             start = repo_orig_fullname.find('/') + 1
             end = len(repo_orig_fullname)
+            # copiando o nome do repositório de origem
             repo_dest_name = repo_orig_fullname[start:end]
             repo_dest_fullname = 'vagnerclementino/' + repo_dest_name
             max_item_to_copy = 100
@@ -39,22 +50,24 @@ def main():
                                                        labels=labels
                                                        )
                     if new_issue.number is not None:
-                        log.info(("Issue nº {0} "
-                                  "com o título '{1}' criada com sucesso"
-                                  .format(new_issue.number,
-                                          new_issue.title
-                                          )
-                                  )
-                                 )
+                        log.log_info(("Issue nº {0} com o título '{1}' "
+                                      "criada com sucesso"
+                                      .format(new_issue.number,
+                                              new_issue.title
+                                              )
+                                      ))
                     counter = counter + 1
                 else:
                     break
+            log.log_info(("Fim da cópia das issues do projeto {0}"
+                          .format(repo_dest_fullname))
+                         )
     except configparser.Error as e:
-        log.error(e)
+        log.log_error(e)
     except GithubException as ghe:
-        log.error(ghe.data)
+        log.log_error(ghe.data)
     except Exception as e:
-        log.error(e)
+        log.log_error(e)
 
 if __name__ == '__main__' and __package__ is None:
     from os import sys, path
