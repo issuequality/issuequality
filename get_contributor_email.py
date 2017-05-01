@@ -29,11 +29,37 @@ try:
                  'mantisbt/mantisbt',
                  'spring-projects/spring-framework',
                  'elastic/elasticsearch',
-                 'google/guava'
+                 'google/guava',
+                 'apache/bloodhound',
+                 'dondelelcaro/debbugs',
+                 'ladybirdweb/faveo-helpdesk',
+                 'fusionforge/fusionforge',
+                 'pld-linux/gnats',
+                 'Flyspray/flyspray',
+                 'taobao/BugFree',
+                 'amyworrall/QuickRadar',
+                 'dallaylaen/potracheno',
+                 'sn0opy/bugtrckr',
+                 'AbdulazizAlaa/FixPhase',
+                 'Repox/SimpleBugs',
+                 'tyrchen/teamspark',
+                 'a-v-k/phpBugTracker',
+                 'praelatus/praelatus',
+                 'mycelium/nbt',
+                 'dineshkummarc/BugNet',
+                 'bugtrax/bugtrax',
+                 'emmannyong/Bug-Tracker',
+                 'Grievoushead/KatanaBugTracking',
+                 'PeithVergil/bugtrax',
+                 'veritech/Bugs',
+                 'jdimov59/BugTracking',
+                 'sunilbooks/BugTrackingSystem',
+                 'kadnan/OhBugz',
+                 'pld-linux/gnats'
                  ]
     config = configparser.ConfigParser()
-    config.readfp(open('../conf/rmquality.ini'))
-    api_token = config.get('API_TOKEN', 'token')
+    config.readfp(open('./conf/rmquality.ini'))
+    api_token = config.get('API_TOKEN', 'token_vagner_clementino')
     git_api = Github(login_or_token=api_token)
     contrib_counter = 0
     email_counter = 0
