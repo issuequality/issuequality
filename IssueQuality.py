@@ -9,6 +9,7 @@ from GithubRepoPool import GithubRepoPool
 from time import sleep
 import codecs
 import csv
+import sys
 
 
 class IssueQuality(object):
@@ -90,9 +91,12 @@ class IssueQuality(object):
 
         """
         try:
+            reload(sys)
+            sys.setdefaultencoding('utf-8')
             gh_pool = GithubRepoPool()
             # pdb.set_trace()
             header = True
+            seconds_to_wait = 60
             csv_file_name = ('outputs/' +
                              datetime.now().strftime('%Y%m%d_%H%M%S_') +
                              'comments.csv'
@@ -124,6 +128,10 @@ class IssueQuality(object):
                                                  csv_file_name,
                                                  header)
                         header = False
+                    self._logger.log_info(('Esperando {0} segundos para '
+                                           'uma nova ''consulta!'
+                                           )).format(seconds_to_wait)
+                    sleep(seconds_to_wait)
                 if issue_counter == 0:
                     self._logger.log_info("Nenhuma issue para ser tratada")
                 else:
@@ -146,7 +154,5 @@ class IssueQuality(object):
         :returns: TODO
 
         """
-        repo_fullname_list = ['vagnerclementino/flask',
-                              'vagnerclementino/GitScraper'
-                              ]
+        repo_fullname_list = ['vagnerclementino/elasticsearch']
         return iter(repo_fullname_list)

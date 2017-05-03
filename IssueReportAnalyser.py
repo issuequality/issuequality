@@ -107,6 +107,10 @@ class IssueReportAnalyser(object):
         :returns: TODO
 
         """
+        # Não realiza análise para uma issue sem 'body'
+        if not issue.body:
+            return (1, (" - [ ] Add step to reproduce.\n"))
+
         match_list = self.get_match_list(issue.body,
                                          'list')
 
@@ -122,7 +126,12 @@ class IssueReportAnalyser(object):
         :returns: TODO
 
         """
-
+        # Não realiza análise para uma issue sem 'body'
+        if not issue.body:
+            return (1, (" - [ ] To Attach files with a screenshots"
+                    " or stacktraces.\n"
+                        )
+                    )
         match_list = self.get_match_list(issue.body,
                                          'attach')
         if len(match_list) == 0:
@@ -140,6 +149,10 @@ class IssueReportAnalyser(object):
         :returns: TODO
 
         """
+        # Não realiza análise para uma issue sem 'body'
+        if not issue.body:
+            return (1, (" - [ ] To include a code block.\n"))
+
         match_list = self.get_match_list(issue.body,
                                          'code')
         if len(match_list) == 0:
@@ -221,11 +234,20 @@ class IssueReportAnalyser(object):
         :returns: TODO
 
         """
+        # Analisando issue sem relato
+        if not issue.body:
+            message = (" - [ ] To improve the text in issue body.\n")
+            dict_freq_keywords = dict()
+            for key in keywords.dict_keywords:
+                dict_freq_keywords[key] = 0
+            return (dict_freq_keywords, message)
+
         gfm = GithubMarkdown(issue.body)
         str_markdown = gfm.parse(issue.body)
         str_text = self.markdown_to_text(str_markdown)
         words = self.tokenize_text(str_text)
         dict_freq_keywords = self.find_keywords(words)
+
         counter = 0
         for key in dict_freq_keywords:
             if dict_freq_keywords[key]:
@@ -272,10 +294,22 @@ class IssueReportAnalyser(object):
         :returns: TODO
 
         """
+        # Não realiza análise para uma issue sem 'body'
+        # if not issue.body:
+        #    message = ' - [ ] To improve the readability of the text.\n'
+        #    return (None, message)
+
         gfm = GithubMarkdown(issue.body)
         str_markdown = gfm.parse(issue.body)
         str_text = self.markdown_to_text(str_markdown)
         dic_test_readbility = dict()
+
+        if not issue.body:
+            message = (" - [ ] To improve the text in issue body.\n")
+            dic_test_readbility['flesch'] = -1
+            dic_test_readbility['ari'] = 100
+            dic_test_readbility['dale-chall'] = 100
+            return (dic_test_readbility, message)
 
         # Analisando a métrica Flesch Reading Ease Score
         score_flesch = textstat.flesch_reading_ease(str_text)
@@ -288,6 +322,10 @@ class IssueReportAnalyser(object):
         # Analisando com o teste Dale-Chall Readbility Score
         score_dale_chal = textstat.dale_chall_readability_score(str_text)
         dic_test_readbility['dale-chall'] = score_dale_chal
+
+        if not issue.body:
+            message = (" - [ ] To improve the text in issue body.\n")
+            return (dic_test_readbility, message)
 
         if self._has_low_readbility(dic_test_readbility):
             message = ' - [ ] To improve the readability of the text.\n'
