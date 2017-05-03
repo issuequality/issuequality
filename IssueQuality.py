@@ -130,7 +130,7 @@ class IssueQuality(object):
                         header = False
                     self._logger.log_info(('Esperando {0} segundos para '
                                            'uma nova ''consulta!'
-                                           )).format(seconds_to_wait)
+                                           ).format(seconds_to_wait))
                     sleep(seconds_to_wait)
                 if issue_counter == 0:
                     self._logger.log_info("Nenhuma issue para ser tratada")
