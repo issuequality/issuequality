@@ -96,7 +96,7 @@ class IssueQuality(object):
             gh_pool = GithubRepoPool()
             # pdb.set_trace()
             header = True
-            seconds_to_wait = 60
+            seconds_to_wait = 10
             csv_file_name = ('outputs/' +
                              datetime.now().strftime('%Y%m%d_%H%M%S_') +
                              'comments.csv'
