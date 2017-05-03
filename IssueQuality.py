@@ -9,6 +9,7 @@ from GithubRepoPool import GithubRepoPool
 from time import sleep
 import codecs
 import csv
+import sys
 
 
 class IssueQuality(object):
@@ -90,6 +91,8 @@ class IssueQuality(object):
 
         """
         try:
+            reload(sys)
+            sys.setdefaultencoding('utf-8')
             gh_pool = GithubRepoPool()
             # pdb.set_trace()
             header = True
@@ -118,6 +121,7 @@ class IssueQuality(object):
                     comment = self._report_analiser.analyse(repo_name,
                                                             issue)
                     if comment.get_body() is not None:
+                        print('Analisado o corpo ' + comment.get_body())
                         issue.create_comment(comment.get_body())
                         comment.set_finish_time(datetime.now())
                         self.save_comment_as_csv(comment,
@@ -139,6 +143,7 @@ class IssueQuality(object):
                 sleep(self._TIME_TO_WAIT)
             self._logger.log_info("Execução efetuada com sucesso.")
         except Exception as e:
+            print('Error on line {}'.format(sys.exc_info()[-1].tb_lineno), type(e), e)
             self._logger.log_error(e)
 
     def get_all_repo_fullname(self):
@@ -146,7 +151,5 @@ class IssueQuality(object):
         :returns: TODO
 
         """
-        repo_fullname_list = ['vagnerclementino/flask',
-                              'vagnerclementino/GitScraper'
-                              ]
+        repo_fullname_list = ['vagnerclementino/elasticsearch']
         return iter(repo_fullname_list)
