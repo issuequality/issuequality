@@ -110,28 +110,40 @@ class IssueQuality(object):
                                       )
                 issue_counter = 0
                 for issue in gh_repo_cli.get_issues():
+                    has_issuequality_comment = False
                     issue_counter = issue_counter + 1
                     self._logger.log_info(("Analisando a issue "
                                            "de nº {0}. Título: '{1}'"
                                            ).format(issue.number,
                                                     issue.title)
                                           )
-                    gh_repo_cli.set_last_issue(issue.number)
-                    # Gerando um comentário na issue com base no
-                    # que foi reportado inicial
-                    comment = self._report_analiser.analyse(repo_name,
-                                                            issue)
-                    if comment.get_body() is not None:
-                        issue.create_comment(comment.get_body())
-                        comment.set_finish_time(datetime.now())
-                        self.save_comment_as_csv(comment,
-                                                 csv_file_name,
-                                                 header)
-                        header = False
-                    self._logger.log_info(('Esperando {0} segundos para '
-                                           'uma nova ''consulta!'
-                                           ).format(seconds_to_wait))
-                    sleep(seconds_to_wait)
+                    for comment_proj in issue.get_comments():
+                        if comment_proj.user.login == 'issuequality':
+                            has_issuequality_comment = True
+                            self._logger.log_info(('Já existe comentário '
+                                                   'do issuequality '
+                                                   'para a issue {0}. '
+                                                   'Nada para fazer!'
+                                                   .format(issue.number)
+                                                   ))
+                            break
+                    if not has_issuequality_comment:
+                        gh_repo_cli.set_last_issue(issue.number)
+                        # Gerando um comentário na issue com base no
+                        # que foi reportado inicial
+                        comment = self._report_analiser.analyse(repo_name,
+                                                                issue)
+                        if comment.get_body() is not None:
+                            issue.create_comment(comment.get_body())
+                            comment.set_finish_time(datetime.now())
+                            self.save_comment_as_csv(comment,
+                                                     csv_file_name,
+                                                     header)
+                            header = False
+                        self._logger.log_info(('Esperando {0} segundos para '
+                                               'uma nova ''consulta!'
+                                               ).format(seconds_to_wait))
+                        sleep(seconds_to_wait)
                 if issue_counter == 0:
                     self._logger.log_info("Nenhuma issue para ser tratada")
                 else:
@@ -154,5 +166,8 @@ class IssueQuality(object):
         :returns: TODO
 
         """
-        repo_fullname_list = ['vagnerclementino/elasticsearch']
+        repo_fullname_list = ['vagnerclementino/elasticsearch',
+                              'vagnerclementino/spring-framework',
+                              'vagnerclementino/guava'
+                              ]
         return iter(repo_fullname_list)
